@@ -73,6 +73,11 @@ function ArkInventoryRules.OnDisable( )
 	
 end
 
+function ArkInventoryRules.ForceRefresh()
+	ArkInventory.ItemCacheClear( )
+	ArkInventory.Frame_Main_Generate( nil, ArkInventory.Const.Window.Draw.Recalculate )
+end
+
 function ArkInventoryRules.ItemAdd( rulenum, h )
 
 	local r = ArkInventory.db.global.option.category[ArkInventory.Const.Category.Type.Rule].data[rulenum]

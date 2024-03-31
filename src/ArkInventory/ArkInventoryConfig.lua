@@ -380,8 +380,22 @@ function ArkInventory.ConfigInternal( )
 								ArkInventory.db.profile.option.attunement.enabled = v
 							end,
 						},
-						colorBlindMode = {
+						showDiffSuffix = {
 							order = 180,
+							name = 'Show different suffix',
+							desc = 'Highlight attuned green items with different attuned suffix',
+							type = "toggle",
+							get = function( info )
+								if not ArkInventory.db.profile.option.attunement then return false end
+								return ArkInventory.db.profile.option.attunement.showSuffix or false
+							end,
+							set = function( info, v )
+								if not ArkInventory.db.profile.option.attunement then ArkInventory.db.profile.option.attunement = {} end
+								ArkInventory.db.profile.option.attunement.showSuffix = v
+							end,
+						},
+						colorBlindMode = {
+							order = 190,
 							name = 'Colorblind mode',
 							desc = 'Use different colors that are more accessible',
 							type = "toggle",
