@@ -21,6 +21,8 @@ ArkInventory.Lib = { -- libraries live here
 	
 }
 
+local SynastriaCoreLib = LibStub('SynastriaCoreLib-1.0')
+
 ArkInventory.Localise = LibStub( "AceLocale-3.0" ):GetLocale( "ArkInventory" )
 
 ArkInventory.db = { }

@@ -18,12 +18,11 @@
 	<Script file="Externals\PeriodicTable-Reputation\LibPeriodicTable-3.1-Reputation.lua" />
 	<Script file="Externals\PeriodicTable-Tradeskill\LibPeriodicTable-3.1-Tradeskill.lua" />
 	<Script file="Externals\PeriodicTable-TradeskillResultMats\LibPeriodicTable-3.1-TradeskillResultMats.lua" />
-
-	<Script file="Externals\SynastriaCoreLib\SynastriaCoreLib.lua" />
-
+	
 	<Include file="Externals\SharedMedia\lib.xml" />
 	<Include file="Externals\SharedMediaWidgets\widget.xml" />
 	
 	<Include file="Externals\Babble-Zone\lib.xml" />
 	
+	<Include file="Externals\SynastriaCoreLib-1.0\SynastriaCoreLib-1.0.xml" />
 </Ui>

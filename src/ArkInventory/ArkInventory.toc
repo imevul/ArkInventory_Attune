@@ -20,8 +20,8 @@
 ## Notes-zhTW: 以分類方式顯示你的背包。
 
 ## RequiredDeps: Blizzard_GuildBankUI
-## OptionalDeps: Ace3, AceGUI-3.0-SharedMediaWidgets, LibPeriodicTable-3.1, LibSharedMedia-3.0, LibBabble-Zone-3.0
-## X-Embeds: Ace3, AceGUI-3.0-SharedMediaWidgets, LibPeriodicTable-3.1, LibSharedMedia-3.0, LibBabble-Zone-3.0
+## OptionalDeps: Ace3, AceGUI-3.0-SharedMediaWidgets, LibPeriodicTable-3.1, LibSharedMedia-3.0, LibBabble-Zone-3.0, SynastriaCoreLib-1.0
+## X-Embeds: Ace3, AceGUI-3.0-SharedMediaWidgets, LibPeriodicTable-3.1, LibSharedMedia-3.0, LibBabble-Zone-3.0, SynastriaCoreLib-1.0
 
 ## X-Category: Inventory
 ## X-Website: http://arkinventory.googlecode.com
