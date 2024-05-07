@@ -11,6 +11,7 @@
 	<Include file="Externals\Ace3-AceEvent\AceEvent-3.0.xml" />
 	<Include file="Externals\Ace3-AceTimer\AceTimer-3.0.xml" />
 	<Include file="Externals\Ace3-AceBucket\AceBucket-3.0.xml" />
+	<Include file="Externals\AceSerializer-3.0\AceSerializer-3.0.xml" />
 	
 	<Script file="Externals\PeriodicTable\LibPeriodicTable-3.1.lua" />
 	<Script file="Externals\PeriodicTable-Consumable\LibPeriodicTable-3.1-Consumable.lua" />

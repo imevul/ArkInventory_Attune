@@ -1964,10 +1964,12 @@ function ArkInventory.OnEnable( )
 	
 	--ArkInventory.Output( string.format( "TOC = %s", ArkInventory.Const.TOC ) )
 	
+	SynastriaCoreLib.RegisterCallback(ArkInventory, SynastriaCoreLib.Events.ItemAttuned, ArkInventory.OnAttuned)
 end
 
 function ArkInventory.OnDisable( )
-	
+	--SynastriaCoreLib.RemoveEventHandler(SynastriaCoreLib.EVENT_ATTUNED, ArkInventory.OnAttuned)
+
 	--ArkInventory.Frame_Main_Hide( )
 	
 	ArkInventory.BlizzardAPIHooks( true )
@@ -2206,6 +2208,31 @@ function ArkInventory.OnProfileChanged( )
 	
 	ArkInventory.Frame_Main_Generate( nil, ArkInventory.Const.Window.Draw.Init )
 	
+end
+
+function ArkInventory.OnAttuned(itemId)
+	print('Attuned item', itemId)
+	ArkInventory.Global.Location[ArkInventory.Const.Location.Bag].resort = true
+	for bagId = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
+		for slotId = 1, GetContainerNumSlots(bagId) do
+			local itemId2 = GetContainerItemID(bagId, slotId)
+			if itemId == itemId2 then
+				print(1, bagId, slotId)
+				ArkInventory.ObjectLockChanged(ArkInventory.Const.Location.Bag, bagId, slotId)
+			end
+		end
+	end
+
+--[[ 	for loc_id in pairs( ArkInventory.Global.Location ) do
+		if ArkInventory.Global.Location[loc_id] then
+			ArkInventory.Global.Location[loc_id][k] = true
+		end
+	end
+ ]]
+	--ArkInventory.LocationSetValue( nil, "resort", true )
+	--ArkInventory.Frame_Main_Generate( nil, ArkInventory.Const.Window.Draw.Recalculate )
+	ArkInventory.LocationSetValue( ArkInventory.Const.Location.Bag, 'resort', true )
+	ArkInventory.Frame_Main_Generate( ArkInventory.Const.Location.Bag, ArkInventory.Const.Window.Draw.Resort )
 end
 
 function ArkInventory.ObjectLockChanged( loc_id, bag_id, slot_id )
@@ -5940,11 +5967,13 @@ function ArkInventory.Frame_Item_Update_Attunement( frame )
 	local enabled = false
 	local colorBlindMode = false
 	local showSuffix = false
+	local checkAttune = false
 
 	if ArkInventory.db.profile.option.attunement then
 		enabled = ArkInventory.db.profile.option.attunement.enabled or false
 		colorBlindMode = ArkInventory.db.profile.option.attunement.colorBlindMode or false
 		showSuffix = ArkInventory.db.profile.option.attunement.showSuffix or false
+		checkAttune = ArkInventory.db.profile.option.attunement.checkAttune or false
 	end
 
 	local progressWidth = 6
@@ -5959,15 +5988,28 @@ function ArkInventory.Frame_Item_Update_Attunement( frame )
 		end
 
 		obj:Show()
-		if SynastriaCoreLib.IsAttuned(itemId) then
+		if SynastriaCoreLib.IsAttuned(itemId, checkAttune) then
 			obj:SetSize(progressWidth, progressMaxHeight)
 
 			if showSuffix then
-				local _, _, itemQuality = GetItemInfo(i.h)
-				local actualSuffixId = tonumber(i.h:match('item:%d+:[^:]*:[^:]*:[^:]*:[^:]*:[^:]*:[^:]*:([^:]*):')) or 0
-				local attunedSuffixId = SynastriaCoreLib.GetAttunedSuffix(itemId) or 0
+				local itemName, _, itemQuality = GetItemInfo(i.h)
+				local actualSuffixId = tonumber(i.h:match('item:%d+:[^:]*:[^:]*:[^:]*:[^:]*:[^:]*:([^:]*):[^:]*:') or 0)
+				local attunedInfo = SynastriaCoreLib.GetItemInfo(i.h)
+				local differentSuffix = false
 
-				if itemQuality == 2 and attunedSuffixId ~= actualSuffixId and attunedSuffixId ~= 0 and actualSuffixId ~= 0 then
+				if itemQuality == 2 then
+					if attunedInfo.suffixId ~= actualSuffixId and attunedInfo.suffixId ~= 0 and actualSuffixId ~= 0 then
+						differentSuffix = true
+					elseif attunedInfo.suffixName then
+						local baseName = GetItemInfo('item:' .. itemId)
+						local actualSuffixName = string.gsub(itemName .. ' ', baseName, '')
+						if attunedInfo.suffixName ~= actualSuffixName then
+							differentSuffix = true
+						end
+					end
+				end
+
+				if differentSuffix then
 					if colorBlindMode then
 						obj:SetVertexColor(0.5, 1, 1, 1)
 					else
@@ -5989,7 +6031,7 @@ function ArkInventory.Frame_Item_Update_Attunement( frame )
 			end
 		else
 			if SynastriaCoreLib.IsAttunable(itemId) then
-				local progress = SynastriaCoreLib.GetAttune(itemId)
+				local progress = SynastriaCoreLib.GetAttuneProgress(itemId)
 				obj:SetSize(progressWidth, math.floor((progress / 100.0) * (progressMaxHeight - progressMinHeight)) + progressMinHeight)
 
 				if colorBlindMode then

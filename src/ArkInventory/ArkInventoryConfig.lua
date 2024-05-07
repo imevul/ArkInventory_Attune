@@ -408,6 +408,20 @@ function ArkInventory.ConfigInternal( )
 								ArkInventory.db.profile.option.attunement.colorBlindMode = v
 							end,
 						},
+						checkAttune = {
+							order = 195,
+							name = 'Use .checkAttune',
+							desc = 'Use .checkAttune to get more info on items your current class cannot use',
+							type = "toggle",
+							get = function( info )
+								if not ArkInventory.db.profile.option.attunement then return false end
+								return ArkInventory.db.profile.option.attunement.checkAttune or false
+							end,
+							set = function( info, v )
+								if not ArkInventory.db.profile.option.attunement then ArkInventory.db.profile.option.attunement = {} end
+								ArkInventory.db.profile.option.attunement.checkAttune = v
+							end,
+						},
 					}
 				},
 				tooltip = {
