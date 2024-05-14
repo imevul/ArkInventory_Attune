@@ -1,0 +1,9 @@
+## Interface: 30300
+## Title: Ark Inventory [Rules] Misc
+## Notes: Misc Rules
+## Author: Imevul
+## Version: 1.0.4-Release
+## RequiredDeps: ArkInventoryRules
+## X-Category: Imevul
+
+ArkInventoryRules_Misc.lua

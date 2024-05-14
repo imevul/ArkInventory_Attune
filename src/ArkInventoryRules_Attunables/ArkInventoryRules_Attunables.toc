@@ -1,0 +1,13 @@
+## Interface: 30300
+## Title: Ark Inventory [Rules] Attunables
+## Notes: Attunables Rules
+## Author: Imevul
+## Version: 1.0.4-Release
+## RequiredDeps: ArkInventoryRules
+## OptionalDeps: SynastriaCoreLib-1.0
+## X-Embeds: SynastriaCoreLib-1.0
+## X-Category: Imevul
+
+embeds.xml
+
+ArkInventoryRules_Attunables.lua

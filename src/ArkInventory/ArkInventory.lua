@@ -5966,14 +5966,10 @@ function ArkInventory.Frame_Item_Update_Attunement( frame )
 	
 	local enabled = false
 	local colorBlindMode = false
-	local showSuffix = false
-	local checkAttune = false
 
 	if ArkInventory.db.profile.option.attunement then
 		enabled = ArkInventory.db.profile.option.attunement.enabled or false
 		colorBlindMode = ArkInventory.db.profile.option.attunement.colorBlindMode or false
-		showSuffix = ArkInventory.db.profile.option.attunement.showSuffix or false
-		checkAttune = ArkInventory.db.profile.option.attunement.checkAttune or false
 	end
 
 	local progressWidth = 6
@@ -5981,57 +5977,18 @@ function ArkInventory.Frame_Item_Update_Attunement( frame )
 	local progressMaxHeight = 35
 
 	if i and i.h and enabled then
-		local itemId = tonumber(i.h:match('item:(%d+)'))
-		if type(itemId) ~= "number" or itemId <= 0 then
-			obj:Hide()
-			return
-		end
-
 		obj:Show()
-		if SynastriaCoreLib.IsAttuned(itemId, checkAttune) then
+		if SynastriaCoreLib.IsAttuned(i.h) then
 			obj:SetSize(progressWidth, progressMaxHeight)
 
-			if showSuffix then
-				local itemName, _, itemQuality = GetItemInfo(i.h)
-				local actualSuffixId = tonumber(i.h:match('item:%d+:[^:]*:[^:]*:[^:]*:[^:]*:[^:]*:([^:]*):[^:]*:') or 0)
-				local attunedInfo = SynastriaCoreLib.GetItemInfo(i.h)
-				local differentSuffix = false
-
-				if itemQuality == 2 then
-					if attunedInfo.suffixId ~= actualSuffixId and attunedInfo.suffixId ~= 0 and actualSuffixId ~= 0 then
-						differentSuffix = true
-					elseif attunedInfo.suffixName then
-						local baseName = GetItemInfo('item:' .. itemId)
-						local actualSuffixName = string.gsub(itemName .. ' ', baseName, '')
-						if attunedInfo.suffixName ~= actualSuffixName then
-							differentSuffix = true
-						end
-					end
-				end
-
-				if differentSuffix then
-					if colorBlindMode then
-						obj:SetVertexColor(0.5, 1, 1, 1)
-					else
-						obj:SetVertexColor(0.5, 1, 1, 1)
-					end
-				else
-					if colorBlindMode then
-						obj:SetVertexColor(0.39, 0.56, 1, 1)
-					else
-						obj:SetVertexColor(0.24, 0.8, 0.18, 1)
-					end
-				end
+			if colorBlindMode then
+				obj:SetVertexColor(0.39, 0.56, 1, 1)
 			else
-				if colorBlindMode then
-					obj:SetVertexColor(0.39, 0.56, 1, 1)
-				else
-					obj:SetVertexColor(0.24, 0.8, 0.18, 1)
-				end
+				obj:SetVertexColor(0.24, 0.8, 0.18, 1)
 			end
 		else
-			if SynastriaCoreLib.IsAttunable(itemId) then
-				local progress = SynastriaCoreLib.GetAttuneProgress(itemId)
+			if SynastriaCoreLib.IsAttunable(i.h) then
+				local progress = SynastriaCoreLib.GetAttuneProgress(i.h)
 				obj:SetSize(progressWidth, math.floor((progress / 100.0) * (progressMaxHeight - progressMinHeight)) + progressMinHeight)
 
 				if colorBlindMode then
@@ -6039,13 +5996,15 @@ function ArkInventory.Frame_Item_Update_Attunement( frame )
 				else
 					obj:SetVertexColor(0.80, 0.73, 0.18, 1)
 				end
-			else
+			elseif SynastriaCoreLib.IsAttunableBySomeone(i.h) then
 				obj:SetSize(progressWidth, progressMinHeight)
 				if colorBlindMode then
 					obj:SetVertexColor(0.86, 0.15, 0.5, 1)
 				else
 					obj:SetVertexColor(0.8, 0.19, 0.19, 1)
 				end
+			else
+				obj:Hide()
 			end
 		end
 	else

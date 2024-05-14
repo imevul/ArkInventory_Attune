@@ -1,6 +1,7 @@
 {
     "Lua.diagnostics.globals": [
         "SynastriaCoreLib",
-        "GetItemInfo"
+        "GetItemInfo",
+        "LibStub"
     ]
 }

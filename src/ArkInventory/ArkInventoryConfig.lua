@@ -380,7 +380,7 @@ function ArkInventory.ConfigInternal( )
 								ArkInventory.db.profile.option.attunement.enabled = v
 							end,
 						},
-						showDiffSuffix = {
+--[[ 						showDiffSuffix = {
 							order = 180,
 							name = 'Show different suffix',
 							desc = 'Highlight attuned green items with different attuned suffix',
@@ -393,7 +393,7 @@ function ArkInventory.ConfigInternal( )
 								if not ArkInventory.db.profile.option.attunement then ArkInventory.db.profile.option.attunement = {} end
 								ArkInventory.db.profile.option.attunement.showSuffix = v
 							end,
-						},
+						}, ]]
 						colorBlindMode = {
 							order = 190,
 							name = 'Colorblind mode',
@@ -408,7 +408,7 @@ function ArkInventory.ConfigInternal( )
 								ArkInventory.db.profile.option.attunement.colorBlindMode = v
 							end,
 						},
-						checkAttune = {
+--[[ 						checkAttune = {
 							order = 195,
 							name = 'Use .checkAttune',
 							desc = 'Use .checkAttune to get more info on items your current class cannot use',
@@ -421,7 +421,7 @@ function ArkInventory.ConfigInternal( )
 								if not ArkInventory.db.profile.option.attunement then ArkInventory.db.profile.option.attunement = {} end
 								ArkInventory.db.profile.option.attunement.checkAttune = v
 							end,
-						},
+						}, ]]
 					}
 				},
 				tooltip = {
