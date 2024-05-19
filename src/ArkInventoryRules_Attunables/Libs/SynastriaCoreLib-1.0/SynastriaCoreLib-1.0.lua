@@ -1,4 +1,4 @@
-﻿local SYNASTRIACORELIB_MAJOR, SYNASTRIACORELIB_MINOR = 'SynastriaCoreLib-1.0', 9
+﻿local SYNASTRIACORELIB_MAJOR, SYNASTRIACORELIB_MINOR = 'SynastriaCoreLib-1.0', 10
 local SynastriaCoreLib, oldminor = LibStub:NewLibrary(SYNASTRIACORELIB_MAJOR, SYNASTRIACORELIB_MINOR)
 
 if not SynastriaCoreLib then return end -- No upgrade needed
@@ -230,6 +230,7 @@ function SynastriaCoreLib.parseItemIdAndLink(itemIdOrLink, suffixId)
     if type(itemIdOrLink) == 'number' then
         return itemIdOrLink, SynastriaCoreLib.generateItemLink(itemIdOrLink, suffixId)
     elseif type(itemIdOrLink) == 'string' then
+        if itemIdOrLink:find('item:') == 1 then itemIdOrLink = '|H' .. itemIdOrLink end
         return SynastriaCoreLib.parseItemId(itemIdOrLink, 0), itemIdOrLink
     end
 
