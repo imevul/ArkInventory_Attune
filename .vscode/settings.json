@@ -2,6 +2,9 @@
     "Lua.diagnostics.globals": [
         "SynastriaCoreLib",
         "GetItemInfo",
-        "LibStub"
+        "LibStub",
+        "GetContainerItemLink",
+        "GetContainerItemInfo",
+        "C_Container"
     ]
 }

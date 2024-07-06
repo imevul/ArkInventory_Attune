@@ -1,5 +1,5 @@
 local _, NS = ...
-local MODULE_NAME, MODULE_VERSION = 'Attunement', 4
+local MODULE_NAME, MODULE_VERSION = 'Attunement', 5
 
 NS.DebugLog(MODULE_NAME, MODULE_VERSION, 'Start')
 if not NS.loaded then return end
@@ -53,7 +53,8 @@ function SynastriaCoreLib.GetAttuneProgress(itemIdOrLink, suffixId, forgedType)
     if type(forgedType) == 'number' and (forgedType < 0 or forgedType > 3) then return 0 end
     local itemId, itemLink = SynastriaCoreLib.parseItemIdAndLink(itemIdOrLink)
 
-    if itemLink and type(forgedType) == 'number' then
+    --if itemLink and type(forgedType) == 'number' then
+    if itemLink and type(itemIdOrLink) == 'string' then
         return GetItemLinkAttuneProgress(itemLink) or 0
     end
 
@@ -85,6 +86,14 @@ function SynastriaCoreLib.HasAttunedAnyVariant(itemIdOrLink)
     local itemId, _ = SynastriaCoreLib.parseItemIdAndLink(itemIdOrLink)
 
     return HasAttunedAnyVariantOfItem(itemId) or false
+end
+
+function SynastriaCoreLib.HasAttunedAllVariants(itemIdOrLink)
+    if (type(itemIdOrLink) ~= 'number' and type(itemIdOrLink) ~= 'string') or not SynastriaCoreLib.isLoaded() then return false end
+    local itemId, _ = SynastriaCoreLib.parseItemIdAndLink(itemIdOrLink)
+
+    local p1, p2, a1, a2, aIndex = GetItemAffixMask(itemId)
+    return p1 == a2 and p2 == a2
 end
 
 function SynastriaCoreLib.IsAttunable(itemIdOrLink)

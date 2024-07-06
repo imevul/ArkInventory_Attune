@@ -1,30 +1,29 @@
-local MODULE_NAME, MODULE_VERSION = 'LDB', 3
+local _, NS = ...
+local MODULE_NAME, MODULE_VERSION = 'LDB', 5
+
+NS.DebugLog(MODULE_NAME, MODULE_VERSION, 'Start')
+if not NS.loaded then return end
+MODULE_VERSION = NS.SYNASTRIACORELIB_MINOR * 100 + MODULE_VERSION
+
 local SynastriaCoreLib = LibStub and LibStub('SynastriaCoreLib-1.0', true)
-if not SynastriaCoreLib or SynastriaCoreLib:_GetModuleVersion(MODULE_NAME) >= MODULE_VERSION then return end
+if not SynastriaCoreLib then return end
+
+NS.DebugLog(MODULE_NAME, MODULE_VERSION, 'Try load')
 
 SynastriaCoreLib.LDB = SynastriaCoreLib.LDB or {}
 if not SynastriaCoreLib._RegisterModule(MODULE_NAME, SynastriaCoreLib.LDB, MODULE_VERSION) then return end
 
+NS.DebugLog(MODULE_NAME, MODULE_VERSION, 'Loaded')
+
 local LDB = LibStub('LibDataBroker-1.1')
 
-if not SynastriaCoreLib.LDB.minimapButton then
-    SynastriaCoreLib.LDB.minimapButton = LDB:NewDataObject('SCL - SynastriaCoreLib', {
-        type = "launcher",
-        text = 'SynastriaCoreLib',
-        icon = "Interface\\Icons\\Spell_Nature_StormReach",
-    })
-end
+local function RemoveDataObject(name)
+    if LDB.proxystorage[name] then
+        LDB.proxystorage[name] = nil
+        return true
+    end
 
-if not SynastriaCoreLib.LDB.inProgressFeed then
-    SynastriaCoreLib.LDB.inProgressFeed = LDB:NewDataObject('SCL: In Progress', { type = 'data source', text = 'Attunement', icon = "Interface\\Icons\\Spell_Nature_StormReach", })
-end
-
-if not SynastriaCoreLib.LDB.perkTaskFeed then
-    SynastriaCoreLib.LDB.perkTaskFeed = LDB:NewDataObject('SCL: Perk Tasks', { type = 'data source', text = 'Perk Tasks', })
-end
-
-if not SynastriaCoreLib.LDB.resourceBankFeed then
-    SynastriaCoreLib.LDB.resourceBankFeed = LDB:NewDataObject('SCL: Resource Bank', { type = 'data source', text = 'Resource Bank', })
+    return false
 end
 
 local function GetTopInProgress(maxNum)
@@ -56,26 +55,27 @@ local function GetActiveTasks(maxNum)
     return ret, count
 end
 
-local function GetResources()
+local function GetResources(maxNum)
     local ret = {}
+    local total = 0
     local count = 0
-    local resources = {}
+    local resources = SynastriaCoreLib.ResourceBank.GetResources()
     for _, resource in pairs(resources) do
-        table.insert(ret, { name = resource.name, count = resource.count })
-        count = count + resource.count
+        table.insert(ret, { itemId = resource.itemId, itemName = resource.itemName, itemLink = resource.itemLink, count = resource.count, itemType = resource.itemType, itemSubType = resource.itemSubType })
+        total = total + resource.count
+        count = count + 1
+        if maxNum and count >= maxNum then break end
     end
 
-    return ret, count
+    return ret, total, count
 end
 
-
-local f = CreateFrame('Frame')
 local UPDATEPERIOD, elapsed = 5, 4
 local function updateFeeds(self, elap)
-	elapsed = elapsed + elap
-	if elapsed < UPDATEPERIOD then return end
+    elapsed = elapsed + elap
+    if elapsed < UPDATEPERIOD then return end
 
-	elapsed = 0
+    elapsed = 0
 
     if SynastriaCoreLib.LDB.inProgressFeed then
         local _, total, count = GetTopInProgress(10)
@@ -88,12 +88,23 @@ local function updateFeeds(self, elap)
     end
 
     if SynastriaCoreLib.LDB.resourceBankFeed then
-        local _, count = GetResources()
-        SynastriaCoreLib.LDB.resourceBankFeed.text = ('Resource Bank: %s'):format(count)
+        local _, total, _ = GetResources()
+        SynastriaCoreLib.LDB.resourceBankFeed.text = ('Resource Bank: %s'):format(total)
     end
 end
-f:SetScript('OnUpdate', updateFeeds)
 
+
+
+RemoveDataObject('SCL - SynastriaCoreLib')
+SynastriaCoreLib.LDB.minimapButton = LDB:NewDataObject('SCL - SynastriaCoreLib', {
+    type = 'launcher',
+    text = 'SynastriaCoreLib',
+    icon = "Interface\\Icons\\Inv_Misc_Gem_Pearl_04",
+})
+
+
+RemoveDataObject('SCL: In Progress')
+SynastriaCoreLib.LDB.inProgressFeed = LDB:NewDataObject('SCL: In Progress', { type = 'data source', text = 'Attunement', icon = "Interface\\Icons\\Spell_Holy_Spellwarding", OnClick = function() OpenAttuneSummary() end })
 
 function SynastriaCoreLib.LDB.inProgressFeed:OnTooltipShow()
     local inProgressItems, total = GetTopInProgress(10)
@@ -106,19 +117,9 @@ function SynastriaCoreLib.LDB.inProgressFeed:OnTooltipShow()
     self:AddDoubleLine('Total:', total)
 end
 
-function SynastriaCoreLib.LDB.inProgressFeed:OnEnter()
-	GameTooltip:SetOwner(self, 'ANCHOR_NONE')
-	GameTooltip:SetPoint('TOPLEFT', self, 'BOTTOMLEFT')
-	GameTooltip:ClearLines()
-	SynastriaCoreLib.LDB.inProgressFeed.OnTooltipShow(GameTooltip)
-	GameTooltip:Show()
-end
 
-function SynastriaCoreLib.LDB.inProgressFeed:OnLeave()
-	GameTooltip:Hide()
-end
-
-
+RemoveDataObject('SCL: Perk Tasks')
+SynastriaCoreLib.LDB.perkTaskFeed = LDB:NewDataObject('SCL: Perk Tasks', { type = 'data source', text = 'Perk Tasks', icon = "Interface\\Icons\\Achievement_Quests_Completed_Daily_07", OnClick = function() OpenPerkMgr() end })
 
 function SynastriaCoreLib.LDB.perkTaskFeed:OnTooltipShow()
     local tasks = GetActiveTasks(25)
@@ -128,36 +129,30 @@ function SynastriaCoreLib.LDB.perkTaskFeed:OnTooltipShow()
     end
 end
 
-function SynastriaCoreLib.LDB.perkTaskFeed:OnEnter()
-	GameTooltip:SetOwner(self, 'ANCHOR_NONE')
-	GameTooltip:SetPoint('TOPLEFT', self, 'BOTTOMLEFT')
-	GameTooltip:ClearLines()
-	SynastriaCoreLib.LDB.perkTaskFeed.OnTooltipShow(GameTooltip)
-	GameTooltip:Show()
-end
 
-function SynastriaCoreLib.LDB.perkTaskFeed:OnLeave()
-	GameTooltip:Hide()
-end
-
-
+RemoveDataObject('SCL: Resource Bank')
+SynastriaCoreLib.LDB.resourceBankFeed = LDB:NewDataObject('SCL: Resource Bank', { type = 'data source', text = 'Resource Bank', icon = "Interface\\Icons\\Inv_Misc_Bag_22", OnClick = function() OpenResourceSummary() end })
 
 function SynastriaCoreLib.LDB.resourceBankFeed:OnTooltipShow()
-    local resources = GetResources()
+    local resources = GetResources(25)
 
+    local category = nil
     for _, item in ipairs(resources) do
-        self:AddDoubleLine(item.name, item.count, 1, 1, 1, 1, 1, 1)
+        local newCategory = ('%s - %s'):format(item.itemType, item.itemSubType)
+        if category ~= newCategory then
+            if category then
+                self:AddLine(' ')
+            end
+            category = newCategory
+            self:AddLine(category)
+        end
+        self:AddDoubleLine(item.itemLink, item.count, 1, 1, 1, 1, 1, 1)
     end
 end
 
-function SynastriaCoreLib.LDB.resourceBankFeed:OnEnter()
-	GameTooltip:SetOwner(self, 'ANCHOR_NONE')
-	GameTooltip:SetPoint('TOPLEFT', self, 'BOTTOMLEFT')
-	GameTooltip:ClearLines()
-	SynastriaCoreLib.LDB.resourceBankFeed.OnTooltipShow(GameTooltip)
-	GameTooltip:Show()
+if not SynastriaCoreLib.LDB.frame then
+    SynastriaCoreLib.LDB.frame = CreateFrame('Frame')
 end
+SynastriaCoreLib.LDB.frame:SetScript('OnUpdate', updateFeeds)
 
-function SynastriaCoreLib.LDB.resourceBankFeed:OnLeave()
-	GameTooltip:Hide()
-end
+NS.DebugLog(MODULE_NAME, MODULE_VERSION, 'Done')

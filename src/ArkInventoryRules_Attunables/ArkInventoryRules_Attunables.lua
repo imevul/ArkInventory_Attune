@@ -34,10 +34,12 @@ end
 
 function rule:OnEnable()
 	ArkInventoryRules.Register(self, 'ATTUNABLE', rule.attunable)
-	ArkInventoryRules.Register(self, 'ATTUNABLE_BY_ME', rule.attunableByMe)
-	ArkInventoryRules.Register(self, 'ATTUNABLE_AT_ALL', rule.attunableAtAll)
+	ArkInventoryRules.Register(self, 'ATTUNABLEBYME', rule.attunablebyme)
+	ArkInventoryRules.Register(self, 'ATTUNABLEATALL', rule.attunableatall)
 	ArkInventoryRules.Register(self, 'ATTUNED', rule.attuned)
-	ArkInventoryRules.Register(self, 'ATTUNEPROGRESS', rule.attuneProgress)
+	ArkInventoryRules.Register(self, 'PARTIALLYATTUNED', rule.partiallyattuned)
+	ArkInventoryRules.Register(self, 'FULLYATTUNED', rule.fullyattuned)
+	ArkInventoryRules.Register(self, 'ATTUNEPROGRESS', rule.attuneprogress)
 end
 
 function rule.attunable(...)
@@ -47,16 +49,30 @@ function rule.attunable(...)
 	return SynastriaCoreLib.IsAttunable(getItemId())
 end
 
-function rule.attunableByMe(...)
+function rule.partiallyattuned(...)
 	if not ArkInventoryRules.Object.h or ArkInventoryRules.Object.class ~= 'item' then return false end
-	local fn = 'ATTUNABLE_BY_ME'
+	local fn = 'ATTUNABLE'
+
+	return SynastriaCoreLib.HasAttunedAnyVariant(getItemId())
+end
+
+function rule.fullyattuned(...)
+	if not ArkInventoryRules.Object.h or ArkInventoryRules.Object.class ~= 'item' then return false end
+	local fn = 'ATTUNABLE'
+
+	return SynastriaCoreLib.HasAttunedAllVariants(getItemId())
+end
+
+function rule.attunablebyme(...)
+	if not ArkInventoryRules.Object.h or ArkInventoryRules.Object.class ~= 'item' then return false end
+	local fn = 'ATTUNABLEBYME'
 
 	return SynastriaCoreLib.IsAttunable(getItemId())
 end
 
-function rule.attunableAtAll(...)
+function rule.attunableatall(...)
 	if not ArkInventoryRules.Object.h or ArkInventoryRules.Object.class ~= 'item' then return false end
-	local fn = 'ATTUNABLE_AT_ALL'
+	local fn = 'ATTUNABLEATALL'
 
 	return SynastriaCoreLib.IsAttunablebySomeone(getItemId())
 end
@@ -68,7 +84,7 @@ function rule.attuned(...)
 	return SynastriaCoreLib.IsAttuned(getInternalId())
 end
 
-function rule.attuneProgress(...)
+function rule.attuneprogress(...)
 	if not ArkInventoryRules.Object.h or ArkInventoryRules.Object.class ~= 'item' then return false end
 	local fn = 'ATTUNEPROGRESS'
 

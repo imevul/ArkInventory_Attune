@@ -380,6 +380,20 @@ function ArkInventory.ConfigInternal( )
 								ArkInventory.db.profile.option.attunement.enabled = v
 							end,
 						},
+						anyVariant = {
+							order = 180,
+							name = 'Check Any Variant',
+							desc = 'Consider Any variant attuned as being attuned',
+							type = "toggle",
+							get = function( info )
+								if not ArkInventory.db.profile.option.attunement then return false end
+								return ArkInventory.db.profile.option.attunement.anyVariant or false
+							end,
+							set = function( info, v )
+								if not ArkInventory.db.profile.option.attunement then ArkInventory.db.profile.option.attunement = {} end
+								ArkInventory.db.profile.option.attunement.anyVariant = v
+							end,
+						},
 --[[ 						showDiffSuffix = {
 							order = 180,
 							name = 'Show different suffix',

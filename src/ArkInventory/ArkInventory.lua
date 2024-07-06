@@ -5966,10 +5966,12 @@ function ArkInventory.Frame_Item_Update_Attunement( frame )
 	
 	local enabled = false
 	local colorBlindMode = false
+	local anyVariant = false
 
 	if ArkInventory.db.profile.option.attunement then
 		enabled = ArkInventory.db.profile.option.attunement.enabled or false
 		colorBlindMode = ArkInventory.db.profile.option.attunement.colorBlindMode or false
+		anyVariant = ArkInventory.db.profile.option.attunement.anyVariant or false
 	end
 
 	local progressWidth = 6
@@ -5978,7 +5980,7 @@ function ArkInventory.Frame_Item_Update_Attunement( frame )
 
 	if i and i.h and enabled then
 		obj:Show()
-		if SynastriaCoreLib.IsAttuned(i.h) then
+		if (not anyVariant and SynastriaCoreLib.IsAttuned(i.h)) or (anyVariant and SynastriaCoreLib.HasAttunedAnyVariant(i.h)) then
 			obj:SetSize(progressWidth, progressMaxHeight)
 
 			if colorBlindMode then
