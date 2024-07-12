@@ -32,7 +32,7 @@ function rule:OnEnable( )
 	ArkInventoryRules.Register( self, 'VANILLA', rule.vanilla )
 	ArkInventoryRules.Register( self, 'TBC', rule.tbc )
 	ArkInventoryRules.Register( self, 'WOTLK', rule.wotlk )
-	ArkInventoryRules.Register( self, 'MYTHIC', rule.wotlk )
+	ArkInventoryRules.Register( self, 'MYTHIC', rule.mythic )
 	ArkInventoryRules.Register( self, 'EMPTY', rule.empty )
 end
 
