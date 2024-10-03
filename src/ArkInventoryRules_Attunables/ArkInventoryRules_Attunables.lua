@@ -1,6 +1,7 @@
 ﻿local rule = ArkInventoryRules:NewModule('ArkInventoryRules_Attunables')
 local debug = false
 
+--@type SynastriaCoreLib
 local SynastriaCoreLib = LibStub('SynastriaCoreLib-1.0')
 
 local function strSplit(inputStr, sep)
@@ -33,6 +34,7 @@ local function getItemId()
 end
 
 function rule:OnEnable()
+	ArkInventoryRules.Register(self, 'ISVALID', rule.isvalid)
 	ArkInventoryRules.Register(self, 'ATTUNABLE', rule.attunable)
 	ArkInventoryRules.Register(self, 'ATTUNABLEBYME', rule.attunablebyme)
 	ArkInventoryRules.Register(self, 'ATTUNABLEATALL', rule.attunableatall)
@@ -42,51 +44,66 @@ function rule:OnEnable()
 	ArkInventoryRules.Register(self, 'ATTUNEPROGRESS', rule.attuneprogress)
 end
 
+-- Is the item able to be attuned by me
+function rule.isvalid(...)
+	if not ArkInventoryRules.Object.h or ArkInventoryRules.Object.class ~= 'item' then return false end
+	local fn = 'ISVALID'
+
+	return SynastriaCoreLib.IsItemValid(getItemId())
+end
+
+-- Is the item able to be attuned, and is this particular variant not already attuned by me
 function rule.attunable(...)
 	if not ArkInventoryRules.Object.h or ArkInventoryRules.Object.class ~= 'item' then return false end
 	local fn = 'ATTUNABLE'
 
-	return SynastriaCoreLib.IsAttunable(getItemId())
+	return SynastriaCoreLib.IsAttunableBySomeone(getItemId()) and SynastriaCoreLib.IsAttunable(getItemId())
 end
 
+-- Is the item able to be attuned, and has at least one variant (affix and/or forging) been attuned, but not all of them
 function rule.partiallyattuned(...)
 	if not ArkInventoryRules.Object.h or ArkInventoryRules.Object.class ~= 'item' then return false end
 	local fn = 'ATTUNABLE'
 
-	return SynastriaCoreLib.HasAttunedAnyVariant(getItemId())
+	return SynastriaCoreLib.IsAttunableBySomeone(getItemId()) and SynastriaCoreLib.HasAttunedAnyVariant(getItemId()) and not SynastriaCoreLib.HasAttunedAllVariants(getItemId())
 end
 
+-- Is the item able to be attuned, and has all variants (affix and forging) been attuned
 function rule.fullyattuned(...)
 	if not ArkInventoryRules.Object.h or ArkInventoryRules.Object.class ~= 'item' then return false end
 	local fn = 'ATTUNABLE'
 
-	return SynastriaCoreLib.HasAttunedAllVariants(getItemId())
+	return SynastriaCoreLib.IsAttunableBySomeone(getItemId()) and SynastriaCoreLib.HasAttunedAllVariants(getItemId())
 end
 
+-- Is the item able to be attuned, and is this particular variant not already attuned by me (same as 'attunable')
 function rule.attunablebyme(...)
 	if not ArkInventoryRules.Object.h or ArkInventoryRules.Object.class ~= 'item' then return false end
 	local fn = 'ATTUNABLEBYME'
 
-	return SynastriaCoreLib.IsAttunable(getItemId())
+	return SynastriaCoreLib.IsAttunableBySomeone(getItemId()) and SynastriaCoreLib.IsAttunable(getItemId())
 end
 
+-- Is the item able to be attuned at all
 function rule.attunableatall(...)
 	if not ArkInventoryRules.Object.h or ArkInventoryRules.Object.class ~= 'item' then return false end
 	local fn = 'ATTUNABLEATALL'
 
-	return SynastriaCoreLib.IsAttunablebySomeone(getItemId())
+	return SynastriaCoreLib.IsAttunableBySomeone(getItemId())
 end
 
+-- Is the item able to be attuned, and the current variant has been attuned
 function rule.attuned(...)
 	if not ArkInventoryRules.Object.h or ArkInventoryRules.Object.class ~= 'item' then return false end
 	local fn = 'ATTUNED'
 
-	return SynastriaCoreLib.IsAttuned(getInternalId())
+	return SynastriaCoreLib.IsAttunableBySomeone(getItemId()) and SynastriaCoreLib.IsAttuned(getInternalId())
 end
 
+-- Is the item able to be attuned, and does the current variant have progress towards attunement (> 0) but is not yet attuned
 function rule.attuneprogress(...)
 	if not ArkInventoryRules.Object.h or ArkInventoryRules.Object.class ~= 'item' then return false end
 	local fn = 'ATTUNEPROGRESS'
 
-	return SynastriaCoreLib.HasAttuneProgress(getInternalId())
+	return SynastriaCoreLib.IsAttunableBySomeone(getItemId()) and SynastriaCoreLib.HasAttuneProgress(getInternalId())
 end

@@ -2210,14 +2210,14 @@ function ArkInventory.OnProfileChanged( )
 	
 end
 
-function ArkInventory.OnAttuned(itemId)
-	print('Attuned item', itemId)
+function ArkInventory.OnAttuned(_, itemId)
+	--print('Attuned item', itemId)
 	ArkInventory.Global.Location[ArkInventory.Const.Location.Bag].resort = true
 	for bagId = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
 		for slotId = 1, GetContainerNumSlots(bagId) do
 			local itemId2 = GetContainerItemID(bagId, slotId)
 			if itemId == itemId2 then
-				print(1, bagId, slotId)
+				--print(1, bagId, slotId)
 				ArkInventory.ObjectLockChanged(ArkInventory.Const.Location.Bag, bagId, slotId)
 			end
 		end

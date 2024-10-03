@@ -1,5 +1,5 @@
 ﻿local wowAddonName, NS = ...
-local SYNASTRIACORELIB_MAJOR, SYNASTRIACORELIB_MINOR = 'SynastriaCoreLib-1.0', 16
+local SYNASTRIACORELIB_MAJOR, SYNASTRIACORELIB_MINOR = 'SynastriaCoreLib-1.0', 19
 NS.SYNASTRIACORELIB_MINOR = SYNASTRIACORELIB_MINOR
 
 if not SCL then SCL = {} end
@@ -25,6 +25,10 @@ local ItemCache = LibStub('ItemCache-1.0')
 local oldCustomGameData = OnCustomGameData
 local oldCustomGameDataFinish = OnCustomGameDataFinish
 local oldCustomGameInit = OnCustomGameInit
+
+local SCL_DEFAULT_ITEM_NAME = 'Unknown Item'
+local SCL_DEFAULT_ITEM_COLOR = 'e55a30'
+local SCL_DEFAULT_ITEM_OWNER_LEVEL = 80
 
 function OnCustomGameData(typeId, id, prev, cur)
     if oldCustomGameData then oldCustomGameData(typeId, id, prev, cur) end
@@ -239,20 +243,46 @@ function SynastriaCoreLib._EnableModules()
     end
 end
 
-function SynastriaCoreLib.generateItemLink(itemId, suffixId, name, color)
-    color = color or 'ffffff'
-    name = name or ''
+function SynastriaCoreLib.generateItemLink(itemIdOrLink, suffixId, name, color)
+    local itemId
+    if type(itemIdOrLink) == 'number' then
+        itemId = itemIdOrLink
+    elseif type(itemIdOrLink) == 'string' then
+        itemId = SynastriaCoreLib.parseItemId(itemIdOrLink)
+        if suffixId == nil then
+            suffixId = SynastriaCoreLib.parseSuffixId(itemIdOrLink, 0)
+        end
+
+        if name == nil then
+            name = SynastriaCoreLib.parseItemName(itemIdOrLink)
+        end
+
+        if color == nil then
+            color = SynastriaCoreLib.parseItemColor(itemIdOrLink)
+        end
+    else
+        return 'ERR'
+    end
+    color = color or SCL_DEFAULT_ITEM_COLOR
+    name = name or SCL_DEFAULT_ITEM_NAME
     suffixId = suffixId or 0
 
-    return ('|cff%s|Hitem:%d:0:0:0:0:0:%d:%d:%d|h[%s]|h|r'):format(color, itemId, 0, suffixId, 0, name)
+    local ench1 = 0
+    local ench2 = 0
+    local ench3 = 0
+    local ench4 = 0
+    local socketBonus = 0
+    local ownerLevel = SCL_DEFAULT_ITEM_OWNER_LEVEL
+    local propertySeed = 0
+
+    return ('|cff%s|Hitem:%d:%d:%d:%d:%d:%d:%d:%d:%d|h[%s]|h|r'):format(color, itemId, ench1, ench2, ench3, ench4, socketBonus, suffixId, propertySeed, ownerLevel, name)
 end
 
 function SynastriaCoreLib.parseItemIdAndLink(itemIdOrLink, suffixId)
     if type(itemIdOrLink) == 'number' then
         return itemIdOrLink, SynastriaCoreLib.generateItemLink(itemIdOrLink, suffixId)
     elseif type(itemIdOrLink) == 'string' then
-        if itemIdOrLink:find('item:') == 1 then itemIdOrLink = '|H' .. itemIdOrLink end
-        return SynastriaCoreLib.parseItemId(itemIdOrLink, 0), itemIdOrLink
+        return SynastriaCoreLib.parseItemId(itemIdOrLink, 0), SynastriaCoreLib.generateItemLink(itemIdOrLink, suffixId)
     end
 
     return nil, nil
@@ -264,7 +294,18 @@ function SynastriaCoreLib.parseItemId(itemLink, default)
 end
 
 function SynastriaCoreLib.parseSuffixId(itemLink, default)
-    return tonumber(itemLink:match('item:%d+:[^:]*:[^:]*:[^:]*:[^:]*:[^:]*:[^:]*:([^:]*):')) or default or nil
+    return tonumber(itemLink:match('item:%d+:[^:]*:[^:]*:[^:]*:[^:]*:[^:]*:([^:]*)')) or default or nil
+end
+
+function SynastriaCoreLib.parseItemColor(itemLink, default)
+    local itemColor = itemLink:match('|cff([^|]+)')
+    return SynastriaCoreLib.getValidItemColor(itemColor, default)
+end
+
+function SynastriaCoreLib.parseItemName(itemLink, default)
+    if type(itemLink) ~= 'string' then return default or SCL_DEFAULT_ITEM_NAME end
+    local itemName = itemLink:match('|h([^|]+)|h')
+    return itemName or default or SCL_DEFAULT_ITEM_NAME
 end
 
 function SynastriaCoreLib.isValidItemId(itemId)
@@ -274,6 +315,15 @@ end
 function SynastriaCoreLib.getValidItemId(itemId, default)
     if not SynastriaCoreLib.isValidItemId(itemId) then return default or nil end
     return itemId
+end
+
+function SynastriaCoreLib.isValidItemColor(itemColor)
+    return type(itemColor) == 'string' and itemColor:find('%x{6}')
+end
+
+function SynastriaCoreLib.getValidItemColor(itemColor, default)
+    if not SynastriaCoreLib.isValidItemColor(itemColor) then return default or SCL_DEFAULT_ITEM_COLOR end
+    return itemColor
 end
 
 function SynastriaCoreLib.GetRace()
@@ -297,7 +347,7 @@ function SynastriaCoreLib.PlayerIsRaceMask(raceMask)
 end
 
 function SynastriaCoreLib.AllCustomGameData(typeId, filterFnc)
-    if not SynastriaCoreLib.isLoaded() then return nil, nil end
+    if not SynastriaCoreLib.isLoaded() then return function() end, nil end
 
     local index = nil
     local count = GetCustomGameDataCount(typeId)
