@@ -57,7 +57,7 @@ function rule.attunable(...)
 	if not ArkInventoryRules.Object.h or ArkInventoryRules.Object.class ~= 'item' then return false end
 	local fn = 'ATTUNABLE'
 
-	return SynastriaCoreLib.IsAttunableBySomeone(getItemId()) and SynastriaCoreLib.IsAttunable(getItemId())
+	return SynastriaCoreLib.IsAttunableBySomeone(getItemId()) and SynastriaCoreLib.IsAttunable(getInternalId())
 end
 
 -- Is the item able to be attuned, and has at least one variant (affix and/or forging) been attuned, but not all of them
@@ -81,7 +81,7 @@ function rule.attunablebyme(...)
 	if not ArkInventoryRules.Object.h or ArkInventoryRules.Object.class ~= 'item' then return false end
 	local fn = 'ATTUNABLEBYME'
 
-	return SynastriaCoreLib.IsAttunableBySomeone(getItemId()) and SynastriaCoreLib.IsAttunable(getItemId())
+	return SynastriaCoreLib.IsAttunableBySomeone(getItemId()) and SynastriaCoreLib.IsAttunable(getInternalId())
 end
 
 -- Is the item able to be attuned at all
