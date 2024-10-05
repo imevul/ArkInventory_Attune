@@ -2231,8 +2231,19 @@ function ArkInventory.OnAttuned(_, itemId)
  ]]
 	--ArkInventory.LocationSetValue( nil, "resort", true )
 	--ArkInventory.Frame_Main_Generate( nil, ArkInventory.Const.Window.Draw.Recalculate )
+
+	-- tag all locations as changed
+	ArkInventory.LocationSetValue( nil, "changed", true )
+	
+	-- tag all locations as needing resorting/recategorisation
+	ArkInventory.LocationSetValue( nil, "resort", true )
+
 	ArkInventory.LocationSetValue( ArkInventory.Const.Location.Bag, 'resort', true )
 	ArkInventory.Frame_Main_Generate( ArkInventory.Const.Location.Bag, ArkInventory.Const.Window.Draw.Resort )
+
+	for loc_id in pairs( ArkInventory.Global.Location ) do
+		ArkInventory.Frame_Main_Generate( loc_id, ArkInventory.Const.Window.Draw.Recalculate )
+	end
 end
 
 function ArkInventory.ObjectLockChanged( loc_id, bag_id, slot_id )
