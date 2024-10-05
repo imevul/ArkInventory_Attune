@@ -39,7 +39,7 @@ ArkInventory.Const = { -- constants
 		Name = "ArkInventory",
 		Version = 3.0254,
 		UIVersion = "3.2.54",
-		Beta = "17-00-Cataclysm",
+		Beta = "17-00-Cataclysm-Imevul",
 	},
 	
 	Frame = {

@@ -1,5 +1,5 @@
 ﻿local wowAddonName, NS = ...
-local SYNASTRIACORELIB_MAJOR, SYNASTRIACORELIB_MINOR = 'SynastriaCoreLib-1.0', 19
+local SYNASTRIACORELIB_MAJOR, SYNASTRIACORELIB_MINOR = 'SynastriaCoreLib-1.0', 20
 NS.SYNASTRIACORELIB_MINOR = SYNASTRIACORELIB_MINOR
 
 if not SCL then SCL = {} end
@@ -244,7 +244,7 @@ function SynastriaCoreLib._EnableModules()
 end
 
 function SynastriaCoreLib.generateItemLink(itemIdOrLink, suffixId, name, color)
-    local itemId
+    local itemId, propertySeed, ownerLevel
     if type(itemIdOrLink) == 'number' then
         itemId = itemIdOrLink
     elseif type(itemIdOrLink) == 'string' then
@@ -254,26 +254,34 @@ function SynastriaCoreLib.generateItemLink(itemIdOrLink, suffixId, name, color)
         end
 
         if name == nil then
-            name = SynastriaCoreLib.parseItemName(itemIdOrLink)
+            name = SynastriaCoreLib.parseItemName(itemIdOrLink, SCL_DEFAULT_ITEM_NAME)
         end
 
         if color == nil then
             color = SynastriaCoreLib.parseItemColor(itemIdOrLink)
+        end
+
+        if propertySeed == nil then
+            propertySeed = SynastriaCoreLib.parsePropertySeed(itemIdOrLink)
+        end
+
+        if ownerLevel == nil then
+            ownerLevel = SynastriaCoreLib.parseOwnerLevel(itemIdOrLink, SCL_DEFAULT_ITEM_OWNER_LEVEL)
         end
     else
         return 'ERR'
     end
     color = color or SCL_DEFAULT_ITEM_COLOR
     name = name or SCL_DEFAULT_ITEM_NAME
+    ownerLevel = ownerLevel or SCL_DEFAULT_ITEM_OWNER_LEVEL
     suffixId = suffixId or 0
+    propertySeed = propertySeed or 0
 
     local ench1 = 0
     local ench2 = 0
     local ench3 = 0
     local ench4 = 0
     local socketBonus = 0
-    local ownerLevel = SCL_DEFAULT_ITEM_OWNER_LEVEL
-    local propertySeed = 0
 
     return ('|cff%s|Hitem:%d:%d:%d:%d:%d:%d:%d:%d:%d|h[%s]|h|r'):format(color, itemId, ench1, ench2, ench3, ench4, socketBonus, suffixId, propertySeed, ownerLevel, name)
 end
@@ -294,7 +302,15 @@ function SynastriaCoreLib.parseItemId(itemLink, default)
 end
 
 function SynastriaCoreLib.parseSuffixId(itemLink, default)
-    return tonumber(itemLink:match('item:%d+:[^:]*:[^:]*:[^:]*:[^:]*:[^:]*:([^:]*)')) or default or nil
+    return tonumber(itemLink:match('item:%d+:[^:]*:[^:]*:[^:]*:[^:]*:[^:]*:([^:]*)')) or default or 0
+end
+
+function SynastriaCoreLib.parsePropertySeed(itemLink, default)
+    return tonumber(itemLink:match('item:%d+:[^:]*:[^:]*:[^:]*:[^:]*:[^:]*:[^:]*:([^:]*)')) or default or 0
+end
+
+function SynastriaCoreLib.parseOwnerLevel(itemLink, default)
+    return tonumber(itemLink:match('item:%d+:[^:]*:[^:]*:[^:]*:[^:]*:[^:]*:[^:]*:[^:]*:([^:]*)')) or default or 0
 end
 
 function SynastriaCoreLib.parseItemColor(itemLink, default)
@@ -324,6 +340,25 @@ end
 function SynastriaCoreLib.getValidItemColor(itemColor, default)
     if not SynastriaCoreLib.isValidItemColor(itemColor) then return default or SCL_DEFAULT_ITEM_COLOR end
     return itemColor
+end
+
+function SynastriaCoreLib.IsUnforged(itemLink)
+    return SynastriaCoreLib.IsItemValid(SynastriaCoreLib.parseItemId(itemLink)) and not (SynastriaCoreLib.IsTitanForged(itemLink) or SynastriaCoreLib.IsWarForged(itemLink) or SynastriaCoreLib.IsLightForged(itemLink))
+end
+
+function SynastriaCoreLib.IsTitanForged(itemLink)
+    local propertySeed = SynastriaCoreLib.parsePropertySeed(itemLink)
+    return bit.band(propertySeed, bit.lshift(1, 12)) > 0
+end
+
+function SynastriaCoreLib.IsWarForged(itemLink)
+    local propertySeed = SynastriaCoreLib.parsePropertySeed(itemLink)
+    return bit.band(propertySeed, bit.lshift(1, 13)) > 0
+end
+
+function SynastriaCoreLib.IsLightForged(itemLink)
+    local propertySeed = SynastriaCoreLib.parsePropertySeed(itemLink)
+    return bit.band(propertySeed, bit.lshift(1, 14)) > 0
 end
 
 function SynastriaCoreLib.GetRace()

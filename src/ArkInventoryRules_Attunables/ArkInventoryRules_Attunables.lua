@@ -33,6 +33,11 @@ local function getItemId()
 	return tonumber(itemId)
 end
 
+local function getItemLink()
+	local itemLink = ArkInventoryRules.Object.h
+	return itemLink
+end
+
 function rule:OnEnable()
 	ArkInventoryRules.Register(self, 'ISVALID', rule.isvalid)
 	ArkInventoryRules.Register(self, 'ATTUNABLE', rule.attunable)
@@ -42,6 +47,11 @@ function rule:OnEnable()
 	ArkInventoryRules.Register(self, 'PARTIALLYATTUNED', rule.partiallyattuned)
 	ArkInventoryRules.Register(self, 'FULLYATTUNED', rule.fullyattuned)
 	ArkInventoryRules.Register(self, 'ATTUNEPROGRESS', rule.attuneprogress)
+
+	ArkInventoryRules.Register(self, 'UNFORGED', rule.unforged)
+	ArkInventoryRules.Register(self, 'TITANFORGED', rule.titanforged)
+	ArkInventoryRules.Register(self, 'WARFORGED', rule.warforged)
+	ArkInventoryRules.Register(self, 'LIGHTFORGED', rule.lightforged)
 end
 
 -- Is the item able to be attuned by me
@@ -57,7 +67,7 @@ function rule.attunable(...)
 	if not ArkInventoryRules.Object.h or ArkInventoryRules.Object.class ~= 'item' then return false end
 	local fn = 'ATTUNABLE'
 
-	return SynastriaCoreLib.IsAttunableBySomeone(getItemId()) and SynastriaCoreLib.IsAttunable(getInternalId())
+	return SynastriaCoreLib.IsAttunableBySomeone(getItemId()) and SynastriaCoreLib.IsAttunable(getItemLink())
 end
 
 -- Is the item able to be attuned, and has at least one variant (affix and/or forging) been attuned, but not all of them
@@ -81,7 +91,7 @@ function rule.attunablebyme(...)
 	if not ArkInventoryRules.Object.h or ArkInventoryRules.Object.class ~= 'item' then return false end
 	local fn = 'ATTUNABLEBYME'
 
-	return SynastriaCoreLib.IsAttunableBySomeone(getItemId()) and SynastriaCoreLib.IsAttunable(getInternalId())
+	return SynastriaCoreLib.IsAttunableBySomeone(getItemId()) and SynastriaCoreLib.IsAttunable(getItemLink())
 end
 
 -- Is the item able to be attuned at all
@@ -97,7 +107,7 @@ function rule.attuned(...)
 	if not ArkInventoryRules.Object.h or ArkInventoryRules.Object.class ~= 'item' then return false end
 	local fn = 'ATTUNED'
 
-	return SynastriaCoreLib.IsAttunableBySomeone(getItemId()) and SynastriaCoreLib.IsAttuned(getInternalId())
+	return SynastriaCoreLib.IsAttunableBySomeone(getItemId()) and SynastriaCoreLib.IsAttuned(getItemLink())
 end
 
 -- Is the item able to be attuned, and does the current variant have progress towards attunement (> 0) but is not yet attuned
@@ -105,5 +115,33 @@ function rule.attuneprogress(...)
 	if not ArkInventoryRules.Object.h or ArkInventoryRules.Object.class ~= 'item' then return false end
 	local fn = 'ATTUNEPROGRESS'
 
-	return SynastriaCoreLib.IsAttunableBySomeone(getItemId()) and SynastriaCoreLib.HasAttuneProgress(getInternalId())
+	return SynastriaCoreLib.IsAttunableBySomeone(getItemId()) and SynastriaCoreLib.HasAttuneProgress(getItemLink())
+end
+
+function rule.unforged(...)
+	if not ArkInventoryRules.Object.h or ArkInventoryRules.Object.class ~= 'item' then return false end
+	local fn = 'UNFORGED'
+
+	return SynastriaCoreLib.IsAttunableBySomeone(getItemId()) and SynastriaCoreLib.IsUnforged(getItemLink())
+end
+
+function rule.titanforged(...)
+	if not ArkInventoryRules.Object.h or ArkInventoryRules.Object.class ~= 'item' then return false end
+	local fn = 'TITANFORGED'
+
+	return SynastriaCoreLib.IsAttunableBySomeone(getItemId()) and SynastriaCoreLib.IsTitanForged(getItemLink())
+end
+
+function rule.warforged(...)
+	if not ArkInventoryRules.Object.h or ArkInventoryRules.Object.class ~= 'item' then return false end
+	local fn = 'WARFORGED'
+
+	return SynastriaCoreLib.IsAttunableBySomeone(getItemId()) and SynastriaCoreLib.IsWarForged(getItemLink())
+end
+
+function rule.lightforged(...)
+	if not ArkInventoryRules.Object.h or ArkInventoryRules.Object.class ~= 'item' then return false end
+	local fn = 'LIGHTFORGED'
+
+	return SynastriaCoreLib.IsAttunableBySomeone(getItemId()) and SynastriaCoreLib.IsLightForged(getItemLink())
 end

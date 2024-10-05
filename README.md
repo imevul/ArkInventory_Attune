@@ -11,10 +11,10 @@ Also adds additional rules.
 ## ArkInventoryRules_Misc
 
 Misc useful rule functions for ArkInventory:
-- `vanilla()`
-- `tbc()`
-- `wotlk()`
-- `empty()`
+- `vanilla()`: Item is from vanilla WoW
+- `tbc()`: Item is from TBC expansion
+- `wotlk()`: Item is from WotLK expansion
+- `empty()`: ItemID = 0 ???
 
 ## ArkInventoryRules_Attunables
 
@@ -27,3 +27,7 @@ Adds useful rule functions for ArkInventory for handling attunable items:
 - `partiallyattuned()`: Is any variant of the item attuned
 - `fullyattuned()`: Is every variant of the item attuned
 - `attuneprogress()`: Does the current variant of the item have attunement progress
+- `unforged()`: Item is not titanforged, warforged, or lightforged
+- `titanforged()`: Item is titanforged
+- `warforged()`: Item is warforged
+- `lightforged()`: Item is lightforged
