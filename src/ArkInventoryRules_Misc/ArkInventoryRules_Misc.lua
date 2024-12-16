@@ -2,7 +2,7 @@
 local VANILLA_MIN_ITEMID = 1
 local TBC_MIN_ITEMID = 23329
 local WOTLK_MIN_ITEMID = 35570
-local MYTHIC_MIN_ITEMID = 52203
+local MYTHIC_MIN_ITEMID = 56807
 
 local function strSplit(inputStr, sep)
 	if sep == nil then

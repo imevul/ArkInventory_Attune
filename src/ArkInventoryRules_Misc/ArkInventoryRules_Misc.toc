@@ -2,7 +2,7 @@
 ## Title: Ark Inventory [Rules] Misc
 ## Notes: Misc Rules
 ## Author: Imevul
-## Version: 1.0.12-Release
+## Version: 1.0.13-Release
 ## RequiredDeps: ArkInventoryRules
 ## X-Category: Imevul
 
