@@ -1,5 +1,5 @@
 ﻿local wowAddonName, NS = ...
-local SYNASTRIACORELIB_MAJOR, SYNASTRIACORELIB_MINOR = 'SynastriaCoreLib-1.0', 20
+local SYNASTRIACORELIB_MAJOR, SYNASTRIACORELIB_MINOR = 'SynastriaCoreLib-1.0', 21
 NS.SYNASTRIACORELIB_MINOR = SYNASTRIACORELIB_MINOR
 
 if not SCL then SCL = {} end
@@ -19,7 +19,60 @@ NS.loaded = true
 
 NS.DebugLog(nil, nil, 'Loaded')
 
-local ItemCache = LibStub('ItemCache-1.0')
+if SynastriaCoreLib.frame == nil then
+    local defaults = {
+        ldb = {
+            cacheTTL = 600,
+            disable = false,
+        }
+    }
+
+    SynastriaCoreLib.frame = CreateFrame('Frame')
+
+    function SynastriaCoreLib.frame:OnEvent(event, addOnName)
+        if addOnName == 'SynastriaCoreLib' or addOnName == 'SynastriaCoreLib-1.0' then
+            SynastriaCoreLibDB = SynastriaCoreLibDB or CopyTable(defaults)
+            self.db = SynastriaCoreLibDB
+            NS.DebugLog(nil, nil, 'Loaded DB')
+            self:InitializeOptions()
+--        else
+--            NS.DebugLog(nil, nil, 'Failed to load DB: ' .. (addOnName or ''))
+        end
+    end
+
+    SynastriaCoreLib.frame:RegisterEvent('ADDON_LOADED')
+    SynastriaCoreLib.frame:SetScript('OnEvent', SynastriaCoreLib.frame.OnEvent)
+
+    function SynastriaCoreLib.frame:InitializeOptions()
+        self.panel = CreateFrame('Frame')
+        self.panel.name = 'SynastriaCoreLib-1.0'
+
+        local cb = CreateFrame('CheckButton', 'SCL_Options_LDB_DisableCB', self.panel, 'InterfaceOptionsCheckButtonTemplate')
+        cb:SetPoint('TOPLEFT', 20, -20)
+        --cb:SetText('Prevent LDB feeds from updating')
+        SCL_Options_LDB_DisableCBText:SetText('Prevent LDB feeds from updating')
+        cb.tooltip = 'Prevent LDB feeds from updating, reducing CPU load'
+        
+        cb:HookScript('OnClick', function(_, btn, down)
+            self.db.ldb.disable = cb:GetChecked()
+        end)
+        cb:SetChecked(self.db.ldb.disable)
+
+        InterfaceOptions_AddCategory(self.panel)
+        NS.DebugLog(nil, nil, 'Added Options category')
+    end
+
+    SLASH_HELLOW1 = "/scl"
+    SLASH_HELLOW2 = "/synastriacorelib"
+    
+    SlashCmdList.HELLOW = function(msg, editBox)
+        InterfaceOptionsFrame_OpenToCategory(SynastriaCoreLib.frame.panel)
+    end
+end
+
+
+--local ItemCache = LibStub('ItemCache-1.0')
+local Cache = LibStub('Cache-1.0')
 
 -- Define eventHandlers
 local oldCustomGameData = OnCustomGameData
@@ -82,12 +135,20 @@ function SynastriaCoreLib._OnCustomGameDataFinish(...)
     --print(('Processing %d custom game data updates'):format(#SynastriaCoreLib._queuedGameData))
     for _, change in ipairs(SynastriaCoreLib._queuedGameData) do
         if change.typeId then
+            --SynastriaCoreLib._dataCache:forget(change.typeId)
+
+            if change.typeId >= 1 and change.typeId <= 10 then
+                SynastriaCoreLib._ldbCache:forget(SynastriaCoreLib.CustomDataTypes.PERK_TASKASSIGN1)
+            else
+                SynastriaCoreLib._ldbCache:forget(change.typeId)
+            end
+
             if change.typeId == 11 then
-                SynastriaCoreLib._cache:put(change.id, {
-                    itemId = change.id,
-                    attuned = change.cur == 100,
-                    progress = change.cur,
-                })
+--                SynastriaCoreLib._cache:put(change.id, {
+--                    itemId = change.id,
+--                    attuned = change.cur == 100,
+--                    progress = change.cur,
+--                })
 
                 if change.cur == 100 then
                     SynastriaCoreLib._OnAttuneItem(change.id)
@@ -181,7 +242,9 @@ SynastriaCoreLib.Colors = { -- { Red, Green, Blue, Alpha }
 
 SynastriaCoreLib.loaded = false
 SynastriaCoreLib.enabled = false
-SynastriaCoreLib._cache = ItemCache.new(60)
+SynastriaCoreLib._cache = nil   --ItemCache.new(60)
+--SynastriaCoreLib._dataCache = Cache.new(600)
+SynastriaCoreLib._ldbCache = Cache.new(3600)
 
 -- Event queue
 SynastriaCoreLib._queuedGameData = {}
@@ -384,7 +447,7 @@ end
 function SynastriaCoreLib.AllCustomGameData(typeId, filterFnc)
     if not SynastriaCoreLib.isLoaded() then return function() end, nil end
 
-    local index = nil
+    local index = 0
     local count = GetCustomGameDataCount(typeId)
 
     return function()
@@ -397,13 +460,13 @@ function SynastriaCoreLib.AllCustomGameData(typeId, filterFnc)
                 value = GetCustomGameData(typeId, key)
 
                 if not filterFnc or (filterFnc and filterFnc(key, value)) then
-                    return key, value
+                    return index, { key = key, value = value }
                 end
             end
         end
 
         return nil, nil
-    end, typeId, nil
+    end, typeId, 0
 end
 
 function SynastriaCoreLib.LoadItem(itemIdOrLink, fnc)

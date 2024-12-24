@@ -2241,9 +2241,14 @@ function ArkInventory.OnAttuned(_, itemId)
 	ArkInventory.LocationSetValue( ArkInventory.Const.Location.Bag, 'resort', true )
 	ArkInventory.Frame_Main_Generate( ArkInventory.Const.Location.Bag, ArkInventory.Const.Window.Draw.Resort )
 
+	ArkInventory.LocationSetValue( ArkInventory.Const.Location.Wearing, 'resort', true )
+	ArkInventory.Frame_Main_Generate( ArkInventory.Const.Location.Wearing, ArkInventory.Const.Window.Draw.Resort )
+
 	for loc_id in pairs( ArkInventory.Global.Location ) do
 		ArkInventory.Frame_Main_Generate( loc_id, ArkInventory.Const.Window.Draw.Recalculate )
 	end
+
+	ArkInventory.ScanLocation( )
 end
 
 function ArkInventory.ObjectLockChanged( loc_id, bag_id, slot_id )
